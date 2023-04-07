@@ -4,7 +4,6 @@ import (
 	"challenge-08/database"
 	"challenge-08/models"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -28,10 +27,17 @@ func GetAllProducts(ctx *gin.Context) {
 
 func GetProduct(ctx *gin.Context) {
 	db := database.GetDB()
+	// userData := ctx.MustGet("userData").(jwt.MapClaims)
 	product := models.Product{}
 	productID, _ := strconv.Atoi(ctx.Param("productID"))
 
-	err := db.Where("id = ?", productID).First(&product).Error
+	err := ctx.ShouldBindJSON(&product)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = db.Where("id = ?", productID).First(&product).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{
@@ -56,9 +62,6 @@ func CreateProduct(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-
-	fmt.Println(product)
-
 	product.UserID = uint(userData["id"].(float64))
 
 	err = db.Create(&product).Error
@@ -96,6 +99,13 @@ func UpdateProduct(ctx *gin.Context) {
 func DeleteProduct(ctx *gin.Context) {
 	db := database.GetDB()
 	productID, _ := strconv.Atoi(ctx.Param("productID"))
+	product := models.Product{}
+
+	err := ctx.ShouldBindJSON(&product)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
 	// Delete the product from the database
 	if err := db.Delete(&models.Product{}, productID).Error; err != nil {
