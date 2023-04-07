@@ -41,3 +41,12 @@ func GetDB() *gorm.DB {
 
 	return db
 }
+
+func GetUser(userID int) (*models.User, error) {
+	var user models.User
+	err := db.Where("id = ?", userID).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

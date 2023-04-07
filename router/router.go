@@ -17,13 +17,13 @@ func New() *gin.Engine {
 	}
 
 	isAdminRouter := r.Group("isAdmin")
-	isAdminRouter.Use(middlewares.Authentication())
-	isAdminRouter.Use(middlewares.AdminMiddleware())
 	{
+		isAdminRouter.Use(middlewares.Authentication())
+		isAdminRouter.Use(middlewares.AdminMiddleware())
 		isAdminRouter.GET("/products", controllers.GetAllProducts)
 		isAdminRouter.GET("/products/:productID", controllers.GetProduct)
-		isAdminRouter.POST("/", controllers.CreateProduct)
-		isAdminRouter.PUT("/", controllers.UpdateProduct)
+		isAdminRouter.POST("/products", controllers.CreateProduct)
+		isAdminRouter.PUT("/products/:productID", controllers.UpdateProduct)
 		isAdminRouter.DELETE("/products/:productID", controllers.DeleteProduct)
 	}
 
@@ -32,7 +32,7 @@ func New() *gin.Engine {
 	isUserRouter.Use(middlewares.UserMiddleware())
 	{
 		isUserRouter.GET("/products/:productID")
-		isUserRouter.POST("/", controllers.CreateProduct)
+		isUserRouter.POST("/products", controllers.CreateProduct)
 	}
 
 	return r

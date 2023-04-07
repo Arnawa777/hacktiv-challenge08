@@ -1,7 +1,9 @@
 package middlewares
 
 import (
+	"challenge-08/database"
 	"challenge-08/helpers"
+	"challenge-08/models"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
@@ -20,48 +22,58 @@ func Authentication() gin.HandlerFunc {
 		}
 
 		c.Set("userData", claims)
+
 		c.Next()
 	}
 }
 
 func AdminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Get the user data from the context
+		db := database.GetDB()
 		userData := c.MustGet("userData").(jwt.MapClaims)
+		// Check if the user is an admin
+		isAdmin := userData["is_admin"].(bool)
+		user := models.User{}
 
-		isAdmin := userData["isAdmin"].(bool)
-
-		// Check the user's role
-		if isAdmin == true {
-			c.Next()
-			return
-		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{
+		err := db.Select("user_id").First(&user, isAdmin).Error
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": "Unauthorized",
-				"error":   "Only admin can access this route",
+				"error":   "Failed to find product",
 			})
 			return
 		}
+
+		if isAdmin == false {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "Unauthorized",
+			})
+			return
+		}
+
+		// Call the next middleware function
+		c.Next()
 	}
 }
 
 func UserMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Get the user data from the context
-		userData := c.MustGet("userData").(jwt.MapClaims)
-
-		isAdmin := userData["isAdmin"].(bool)
-
-		// Check the user's role
-		if isAdmin == false {
-			c.Next()
-			return
-		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "Unauthorized",
-				"error":   "Only users can access this route",
+		// Check if the user is an admin
+		isAdmin, ok := c.Get("isAdmin")
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "User role not found",
 			})
 			return
 		}
+		if isAdmin.(bool) == true {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "Unauthorized",
+			})
+			return
+		}
+
+		// Call the next middleware function
+		c.Next()
 	}
 }

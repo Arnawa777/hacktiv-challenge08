@@ -60,7 +60,7 @@ func LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	token, err := helpers.GenerateToken(user.ID, user.Email)
+	token, err := helpers.GenerateToken(user.ID, user.Email, user.IsAdmin)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
