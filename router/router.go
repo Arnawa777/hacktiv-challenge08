@@ -16,23 +16,14 @@ func New() *gin.Engine {
 		userRouter.POST("/login", controllers.LoginUser)
 	}
 
-	isAdminRouter := r.Group("isAdmin")
-	isAdminRouter.Use(middlewares.Authentication())
-	isAdminRouter.Use(middlewares.AdminMiddleware())
+	productRouter := r.Group("products")
+	productRouter.Use(middlewares.Authentication())
 	{
-		isAdminRouter.GET("/products", controllers.GetAllProducts)
-		isAdminRouter.GET("/products/:productID", controllers.GetProduct)
-		isAdminRouter.POST("/products", controllers.CreateProduct)
-		isAdminRouter.PUT("/products/:productID", controllers.UpdateProduct)
-		isAdminRouter.DELETE("/products/:productID", controllers.DeleteProduct)
-	}
-
-	isUserRouter := r.Group("isUser")
-	isUserRouter.Use(middlewares.Authentication())
-	isUserRouter.Use(middlewares.UserMiddleware())
-	{
-		isUserRouter.GET("/products/:productID", controllers.GetProduct)
-		isUserRouter.POST("/products", controllers.CreateProduct)
+		productRouter.GET("/", controllers.GetAllProducts)
+		productRouter.GET("/:productID", controllers.GetProduct, middlewares.ValidateUser())
+		productRouter.POST("/", controllers.CreateProduct)
+		productRouter.PUT("/:productID", controllers.UpdateProduct, middlewares.ValidateUser())
+		productRouter.DELETE("/:productID", controllers.DeleteProduct, middlewares.ValidateUser())
 	}
 
 	return r

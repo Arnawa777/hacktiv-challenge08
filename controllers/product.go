@@ -4,6 +4,7 @@ import (
 	"challenge-08/database"
 	"challenge-08/models"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -86,10 +87,19 @@ func UpdateProduct(ctx *gin.Context) {
 	}
 
 	product.UserID = uint(userData["id"].(float64))
+	//just to make output id not 0
+	product.ID = uint(productID)
 
-	err = db.Model(&product).Where("id=?", productID).Updates(models.Product{Title: product.Title, Description: product.Description}).Error
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+	result := db.Model(&product).Where("id=?", productID).Updates(models.Product{Title: product.Title, Description: product.Description})
+	if result.Error != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, result.Error)
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": fmt.Sprintf("Product with ID %d not found", productID),
+		})
 		return
 	}
 

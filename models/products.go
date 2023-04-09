@@ -10,7 +10,7 @@ type Product struct {
 	UserID uint `json:"user_id"`
 	// If the Title field is empty, the validation will fail and return an error message "Title is required".
 	//validate:something-output when fail
-	Title       string `json:"Title" validate:"required-Title is required"`
+	Title       string `json:"title" validate:"required-Title is required"`
 	Description string `json:"description" validate:"required-Description is required"`
 	User        *User
 }

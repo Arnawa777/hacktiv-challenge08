@@ -1,7 +1,7 @@
 README
-<br>Commit sebelumnya middleware masih errors ini fix dari middleware
-<br>Instruksi kurang jelas jadi saya membuat 2 middleware admin dan user
-<br>Karena saya pantang menyerah tolong nilai saya jgn terlalu banyak dikurangi 😁
+<br> Fix BUG 09-04-2023
+<br> Now User can delete and update his/her product
+<br> Admin can use all CRUD and change other user product
 
 <br> go get github.com/asaskevich/govalidator
 <br> go get github.com/dgrijalva/jwt-go
