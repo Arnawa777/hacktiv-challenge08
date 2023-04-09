@@ -20,10 +20,10 @@ func New() *gin.Engine {
 	productRouter.Use(middlewares.Authentication())
 	{
 		productRouter.GET("/", controllers.GetAllProducts)
-		productRouter.GET("/:productID", controllers.GetProduct, middlewares.ValidateUser())
+		productRouter.GET("/:productID", middlewares.ValidateUser(), controllers.GetProduct)
 		productRouter.POST("/", controllers.CreateProduct)
-		productRouter.PUT("/:productID", controllers.UpdateProduct, middlewares.ValidateUser())
-		productRouter.DELETE("/:productID", controllers.DeleteProduct, middlewares.ValidateUser())
+		productRouter.PUT("/:productID", middlewares.ValidateUser(), controllers.UpdateProduct)
+		productRouter.DELETE("/:productID", middlewares.ValidateUser(), controllers.DeleteProduct)
 	}
 
 	return r
